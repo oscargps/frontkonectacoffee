@@ -2,6 +2,18 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+This project is carried out as a technical test for the application to the position of lead analyst.
+
+Includes sales management platform and products for cafeteria KonectaCoffee
+
+## Requirements
+- node 14.17
+- npm 6.14
+
+##Before Running
+
+Inside the project execute npm install for add all dependencies
+
 ## Available Scripts
 
 In the project directory, you can run:
