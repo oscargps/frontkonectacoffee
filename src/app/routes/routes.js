@@ -2,7 +2,7 @@ import Dashboard from "../../presentation/layouts/Dashboard";
 // Dashboard Routes
 const routes = [
     {
-      layout: "/dashboard",
+      layout: "/",
       component: Dashboard,
     },
 

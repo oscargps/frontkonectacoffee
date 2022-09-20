@@ -28,7 +28,6 @@ const AppRoutes = (props) => {
 								</Route>
 							);
 						})}
-						<Redirect from="/" to="/admin/index" />
 					</Switch>
 				</BrowserRouter>
 			</HashRouter>
