@@ -5,7 +5,8 @@ import SaleForm from "../components/SaleForm";
 import DataTable from "../components/Table";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-
+import { createSales } from "../../services/sales";
+import "../css/loader.css";
 const useStyles = makeStyles((theme) => ({
 	root: {
 		"& > *": {
@@ -14,10 +15,11 @@ const useStyles = makeStyles((theme) => ({
 	}
 }));
 const Sales = (props) => {
-	const { products } = props;
+	const { products,updateData } = props;
 	const [adding, setAdding] = useState(false);
 	const [cart, setCart] = useState([]);
 	const [productsSelected, setProductsSelected] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	const columns = [
 		{ field: "product", headerName: "Producto", width: 300 },
@@ -88,6 +90,24 @@ const Sales = (props) => {
 		});
 	};
 
+	const finishSale = async () => {
+		setLoading(true);
+		let sale = {
+			sale: getTotal(cart),
+			products: cart
+		};
+		let res = await createSales(sale);
+		if (res.status == 201) {
+			Swal.fire("Venta realizada con exito", "", "success");
+			setCart([])
+			setProductsSelected([])
+			updateData()
+		} else {
+			Swal.fire("No se pudo realizar la venta", "", "error");
+		}
+		setLoading(false);
+	};
+
 	return (
 		<>
 			{!adding && (
@@ -99,34 +119,38 @@ const Sales = (props) => {
 					validations={validations}
 				/>
 			)}
-			{cart.length > 0 && (
-				<>
-					<Button
-						style={{ margin: "1em" }}
-						variant="contained"
-						color="primary"
-						size={"medium"}
-					>
-						Terminar Venta ${getTotal(cart)}
-					</Button>
-					{productsSelected.length > 0 && (
+			{cart.length > 0 &&
+				(loading ? (
+					<span class="loader"></span>
+				) : (
+					<>
 						<Button
 							style={{ margin: "1em" }}
 							variant="contained"
 							color="primary"
 							size={"medium"}
-							onClick={deleteProducts}
+							onClick={finishSale}
 						>
-							Eliminar Productos
+							Terminar Venta ${getTotal(cart)}
 						</Button>
-					)}
-					<DataTable
-						rows={getCart(cart)}
-						columns={columns}
-						productsSelected={setProductsSelected}
-					/>
-				</>
-			)}
+						{productsSelected.length > 0 && (
+							<Button
+								style={{ margin: "1em" }}
+								variant="contained"
+								color="primary"
+								size={"medium"}
+								onClick={deleteProducts}
+							>
+								Eliminar Productos
+							</Button>
+						)}
+						<DataTable
+							rows={getCart(cart)}
+							columns={columns}
+							productsSelected={setProductsSelected}
+						/>
+					</>
+				))}
 		</>
 	);
 };

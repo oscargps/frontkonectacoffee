@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Sales from "../../presentation/views/Sales";
 import Products from "../../presentation/views/Products";
 import PropTypes from "prop-types";
@@ -8,8 +8,10 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
-import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
-import FastfoodIcon from '@material-ui/icons/Fastfood';
+import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
+import FastfoodIcon from "@material-ui/icons/Fastfood";
+
+import { getProducts } from "../../services/products";
 function TabPanel(props) {
 	const { children, value, index, ...other } = props;
 
@@ -51,76 +53,26 @@ const useStyles = makeStyles((theme) => ({
 const Dashboard = () => {
 	const classes = useStyles();
 	const [value, setValue] = React.useState(0);
+	const [products, setProducts] = React.useState([]);
+	const [loading, setLoading] = React.useState(false);
 
-	const products = [
-		{
-			id:1,
-			product_name :"asd",
-			product_reference :"asd",
-			product_price  :1000,
-			product_weigth :0,
-			product_category :"qweqwe",
-			product_stock:1000,
-			product_created_at :"",
-		},
-		{
-			id:2,
-			product_name :"asd",
-			product_reference :"asd",
-			product_price  :1001,
-			product_weigth :0,
-			product_category :"qweqwe",
-			product_stock:1001,
-			product_created_at :"",
-		},
-		{
-			id:3 ,
-			product_name :"asd",
-			product_reference :"asd",
-			product_price  :1002,
-			product_weigth :0,
-			product_category :"qweqwe",
-			product_stock:1002,
-			product_created_at :"",
-		},
-		{
-			id:4,
-			product_name :"asd",
-			product_reference :"asd",
-			product_price  :1003,
-			product_weigth :0,
-			product_category :"qweqwe",
-			product_stock:1003,
-			product_created_at :"",
-		},
-		{
-			id:5,
-			product_name :"asd",
-			product_reference :"asd",
-			product_price  :1004,
-			product_weigth :0,
-			product_category :"qweqwe",
-			product_stock:1004,
-			product_created_at :"",
-		},
-		{
-			id:6 ,
-			product_name :"asd",
-			product_reference :"asd",
-			product_price  :1005,
-			product_weigth :0,
-			product_category :"qweqwe",
-			product_stock:1005,
-			product_created_at :"",
-		},
-	]
 
+	const getData = async () => {
+		setLoading(true)
+		let products = await getProducts();
+		setProducts(products.data);
+		setLoading(false);
+	};
+
+	useEffect(() => {
+		getData();
+	}, []);
 	const handleChange = (event, newValue) => {
 		setValue(newValue);
 	};
 	return (
 		<div className={classes.root}>
-            <h1>Konecta Coffee - Sales Module</h1>
+			<h1>Konecta Coffee - Sales Module</h1>
 			<AppBar position="static">
 				<Tabs
 					value={value}
@@ -129,15 +81,19 @@ const Dashboard = () => {
 					centered
 				>
 					<Tab icon={<AttachMoneyIcon />} label="Ventas" {...a11yProps(0)} />
-					<Tab  icon={<FastfoodIcon />} label="Productos" {...a11yProps(1)} />
+					<Tab icon={<FastfoodIcon />} label="Productos" {...a11yProps(1)} />
 				</Tabs>
 			</AppBar>
-			<TabPanel value={value} index={0}>
-				<Sales products = {products}/>
-			</TabPanel>
-			<TabPanel value={value} index={1}>
-				<Products products = {products} />
-			</TabPanel>
+			{!loading && (
+				<>
+					<TabPanel value={value} index={0}>
+						<Sales products={products}  updateData={getData} />
+					</TabPanel>
+					<TabPanel value={value} index={1}>
+						<Products products={products} updateData={getData} />
+					</TabPanel>
+				</>
+			)}
 		</div>
 	);
 };

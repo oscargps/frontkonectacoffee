@@ -23,11 +23,11 @@ const useStyle = makeStyles((theme) => ({
 
 
 const ProductoForm = (props) => {
-	const { initialState, fields, title, validations } = props;
+	const { initialState, fields, title, validations, createProduct } = props;
 	const classes = useStyle();
 
 	const onSubmit = (values) => {
-		console.log(values);
+		createProduct(values);
 	};
 
 	return (

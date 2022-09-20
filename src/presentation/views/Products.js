@@ -5,9 +5,10 @@ import Button from "@material-ui/core/Button";
 import ProductoForm from "../components/Form";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
+import { createProduct, updateProduct,deleteProducts } from "../../services/products";
 
 const Products = (props) => {
-	const { products } = props;
+	const { products,updateData } = props;
 	const [modal, setModal] = useState(false);
 	const [productsSelected, setProductsSelected] = useState(false);
 
@@ -99,9 +100,9 @@ const Products = (props) => {
 			editable: true
 		},
 		{
-			field: "product_created_at ",
+			field: "created_at",
 			headerName: "Creado",
-			width: 150
+			width: 200
 		}
 	];
 
@@ -114,19 +115,46 @@ const Products = (props) => {
 		product_stock: Yup.number().positive().integer().required("Required")
 	});
 
-	const deleteProducts = () => {
+	const deleteProd = () => {
 		Swal.fire({
 			title: "¿Desea Eliminar los productos seleccionados?",
 			showCancelButton: true,
-			confirmButtonText: "Eliminar",
-		}).then((result) => {
+			confirmButtonText: "Eliminar"
+		}).then(async (result) => {
 			/* Read more about isConfirmed, isDenied below */
 			if (result.isConfirmed) {
-				Swal.fire("Eliminados!", "", "success");
+				let res = await deleteProducts(productsSelected)
+				if(res.status == 200){
+					Swal.fire("Eliminados!", "", "success");
+					updateData()
+				}
 			}
 		});
 	};
+	const createProd = async (product) => {
+		let res = await createProduct(product);
+		if (res.status == 201) {
+			Swal.fire("Producto añadido!", "", "success");
+			setModal(false)
+			updateData()
+		} else {
+			Swal.fire("Error Creando Producto!", "", "error");
+		}
+	};
 
+	const updateProd = async (product) => {
+		console.log(product);
+		let res = await updateProduct({
+			...product.row,
+			[product.field]: product.value
+		});
+		if (res.status == 200) {
+			Swal.fire("Producto Modificado!", "", "success");
+			updateData()
+		} else {
+			Swal.fire("Error Modificando Producto!", "", "error");
+		}
+	};
 	return (
 		<>
 			<Modal open={modal} handleClose={handleClose}>
@@ -136,6 +164,7 @@ const Products = (props) => {
 						fields={fields}
 						title={"Crear Producto"}
 						validations={validations}
+						createProduct={createProd}
 					/>
 				</>
 			</Modal>
@@ -156,7 +185,7 @@ const Products = (props) => {
 						variant="contained"
 						color="primary"
 						size={"medium"}
-						onClick={deleteProducts}
+						onClick={deleteProd}
 					>
 						Eliminar Productos
 					</Button>
@@ -166,6 +195,7 @@ const Products = (props) => {
 				rows={products}
 				columns={columns}
 				productsSelected={setProductsSelected}
+				updateProduct={updateProd}
 			/>
 		</>
 	);

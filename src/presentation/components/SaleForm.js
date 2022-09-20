@@ -60,7 +60,6 @@ const SaleForm = (props) => {
 														value={values.product}
 														name="product"
 													>
-														<MenuItem>None</MenuItem>
 														{products.map((item) => (
 															<MenuItem key={item.value} value={item}>
 																{item.product_name}
